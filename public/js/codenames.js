@@ -1,4 +1,4 @@
-let socket = io() // Connect to server
+let socket = io('http://localhost:2000') // Connect to server
 
 
 // Sign In Page Elements
@@ -39,6 +39,10 @@ let buttonDifficultyNormal = document.getElementById('difficulty-normal')
 let buttonDifficultyHard = document.getElementById('difficulty-hard')
 let buttonModeCasual = document.getElementById('mode-casual')
 let buttonModeTimed = document.getElementById('mode-timed')
+
+let buttonPlayerModeNormal = document.getElementById("playermode-normal")
+let buttonPlayerModeDuet = document.getElementById("playermode-duet")
+
 let buttonAbout = document.getElementById('about-button')
 let buttonAfk = document.getElementById('not-afk')
 let buttonServerMessageOkay = document.getElementById('server-message-okay')
@@ -66,87 +70,102 @@ let timer = document.getElementById('timer')
 let playerRole = 'guesser'
 let difficulty = 'normal'
 let mode = 'casual'
+let playerMode = 'normal'
+let nickname = '';
+let myteam = '';
 
 // Show the proper toggle options
 buttonModeCasual.disabled = true;
 buttonModeTimed.disabled = false;
 buttonRoleGuesser.disabled = true;
 buttonRoleSpymaster.disabled = false;
+buttonPlayerModeNormal.disabled = true;
+buttonPlayerModeDuet.disabled = false;
 
 
 // UI Interaction with server
 ////////////////////////////////////////////////////////////////////////////
 // User Joins Room
-joinEnter.onclick = () => {       
+joinEnter.onclick = () => {
+  nickname = joinNickname.value;
   socket.emit('joinRoom', {
-    nickname:joinNickname.value,
-    room:joinRoom.value,
-    password:joinPassword.value
+    nickname: joinNickname.value,
+    room: joinRoom.value,
+    password: joinPassword.value
   })
 }
 // User Creates Room
-joinCreate.onclick = () => {      
+joinCreate.onclick = () => {
+  nickname = joinNickname.value;
   socket.emit('createRoom', {
-    nickname:joinNickname.value,
-    room:joinRoom.value,
-    password:joinPassword.value
+    nickname: joinNickname.value,
+    room: joinRoom.value,
+    password: joinPassword.value
   })
 }
 // User Leaves Room
-leaveRoom.onclick = () => {       
+leaveRoom.onclick = () => {
   socket.emit('leaveRoom', {})
 }
 // User Joins Red Team
-joinRed.onclick = () => {         
+joinRed.onclick = () => {
   socket.emit('joinTeam', {
-    team:'red'
+    team: 'red'
   })
 }
 // User Joins Blue Team
-joinBlue.onclick = () => {        
+joinBlue.onclick = () => {
   socket.emit('joinTeam', {
-    team:'blue'
+    team: 'blue'
   })
 }
 // User Randomizes Team
-randomizeTeams.onclick = () => {  
+randomizeTeams.onclick = () => {
   socket.emit('randomizeTeams', {})
 }
 // User Starts New Game
-newGame.onclick = () => {         
+newGame.onclick = () => {
   socket.emit('newGame', {})
 }
 // User Picks spymaster Role
-buttonRoleSpymaster.onclick = () => { 
-  socket.emit('switchRole', {role:'spymaster'})
+buttonRoleSpymaster.onclick = () => {
+  socket.emit('switchRole', { role: 'spymaster' })
 }
 // User Picks guesser Role
-buttonRoleGuesser.onclick = () => {   
-  socket.emit('switchRole', {role:'guesser'})
+buttonRoleGuesser.onclick = () => {
+  socket.emit('switchRole', { role: 'guesser' })
 }
 // User Picks Hard Difficulty
 buttonDifficultyHard.onclick = () => {
-  socket.emit('switchDifficulty', {difficulty:'hard'})
+  socket.emit('switchDifficulty', { difficulty: 'hard' })
 }
 // User Picks Normal Difficulty 
 buttonDifficultyNormal.onclick = () => {
-  socket.emit('switchDifficulty', {difficulty:'normal'})
+  socket.emit('switchDifficulty', { difficulty: 'normal' })
 }
 // User Picks Timed Mode
-buttonModeTimed.onclick = () => { 
-  socket.emit('switchMode', {mode:'timed'})
+buttonModeTimed.onclick = () => {
+  socket.emit('switchMode', { mode: 'timed' })
 }
 // User Picks Casual Mode
 buttonModeCasual.onclick = () => {
-  socket.emit('switchMode', {mode:'casual'})
+  socket.emit('switchMode', { mode: 'casual' })
 }
+buttonPlayerModeDuet.onclick = () => {
+  socket.emit('switchPlayerMode', { playerMode: 'duet' })
+}
+buttonPlayerModeNormal.onclick = () => {
+  socket.emit('switchPlayerMode', { playerMode: 'normal' })
+}
+
+
 // User Ends Turn
 endTurn.onclick = () => {
   socket.emit('endTurn', {})
 }
 // User Clicks Tile
-function tileClicked(i,j){
-  socket.emit('clickTile', {i:i, j:j})
+function tileClicked(i, j) {
+  socket.emit('clickTile', { i: i, j: j })
 }
 // User Clicks About
 buttonAbout.onclick = () => {
@@ -162,24 +181,24 @@ buttonAbout.onclick = () => {
 }
 // User Clicks card pack
 buttonBasecards.onclick = () => {
-  socket.emit('changeCards', {pack:'base'})
+  socket.emit('changeCards', { pack: 'base' })
 }
 // User Clicks card pack
 buttonDuetcards.onclick = () => {
-  socket.emit('changeCards', {pack:'duet'})
+  socket.emit('changeCards', { pack: 'duet' })
 }
 // User Clicks card pack
 buttonUndercovercards.onclick = () => {
-  socket.emit('changeCards', {pack:'undercover'})
+  socket.emit('changeCards', { pack: 'undercover' })
 }
 // User Clicks card pack
 buttonNLSScards.onclick = () => {
-  socket.emit('changeCards', {pack:'nlss'})
+  socket.emit('changeCards', { pack: 'nlss' })
 }
 
 // When the slider is changed
-timerSlider.addEventListener("input", () =>{
-  socket.emit('timerSlider', {value:timerSlider.value})
+timerSlider.addEventListener("input", () => {
+  socket.emit('timerSlider', { value: timerSlider.value })
 })
 
 // User confirms theyre not afk
@@ -201,24 +220,24 @@ socket.on('serverStats', (data) => {        // Client gets server stats
   document.getElementById('server-stats').innerHTML = "Players: " + data.players + " | Rooms: " + data.rooms
 })
 
-socket.on('joinResponse', (data) =>{        // Response to joining room
-  if(data.success){
+socket.on('joinResponse', (data) => {        // Response to joining room
+  if (data.success) {
     joinDiv.style.display = 'none'
     gameDiv.style.display = 'block'
     joinErrorMessage.innerText = ''
   } else joinErrorMessage.innerText = data.msg
 })
 
-socket.on('createResponse', (data) =>{      // Response to creating room
-  if(data.success){
+socket.on('createResponse', (data) => {      // Response to creating room
+  if (data.success) {
     joinDiv.style.display = 'none'
     gameDiv.style.display = 'block'
     joinErrorMessage.innerText = ''
   } else joinErrorMessage.innerText = data.msg
 })
 
-socket.on('leaveResponse', (data) =>{       // Response to leaving room
-  if(data.success){
+socket.on('leaveResponse', (data) => {       // Response to leaving room
+  if (data.success) {
     joinDiv.style.display = 'block'
     gameDiv.style.display = 'none'
     wipeBoard();
@@ -230,7 +249,7 @@ socket.on('timerUpdate', (data) => {        // Server update client timer
 })
 
 socket.on('newGameResponse', (data) => {    // Response to New Game
-  if (data.success){
+  if (data.success) {
     wipeBoard();
   }
 })
@@ -253,8 +272,8 @@ socket.on('serverMessage', (data) => {    // Response to Server message
   overlay.style.display = 'block'
 })
 
-socket.on('switchRoleResponse', (data) =>{  // Response to Switching Role
-  if(data.success){
+socket.on('switchRoleResponse', (data) => {  // Response to Switching Role
+  if (data.success) {
     playerRole = data.role;
     if (playerRole === 'guesser') {
       buttonRoleGuesser.disabled = true;
@@ -269,28 +288,36 @@ socket.on('switchRoleResponse', (data) =>{  // Response to Switching Role
   }
 })
 
-socket.on('gameState', (data) =>{           // Response to gamestate update
-  if (data.difficulty !== difficulty){  // Update the clients difficulty
+socket.on('gameState', (data) => {           // Response to gamestate update
+  console.log(data);
+  if (data.difficulty !== difficulty) {  // Update the clients difficulty
     difficulty = data.difficulty
     wipeBoard();                        // Update the appearance of the tiles
   }
   mode = data.mode                      // Update the clients game mode
+  playerMode = data.playerMode
   updateInfo(data.game, data.team)      // Update the games turn information
   updateTimerSlider(data.game, data.mode)          // Update the games timer slider
   updatePacks(data.game)                // Update the games pack information
   updatePlayerlist(data.players)        // Update the player list for the room
   updateBoard(data.game.board)          // Update the board display
+  updateMyTeam(data.players)
 })
+
+function updateMyTeam(players) {
+  let player = Object.values(players).find(r => r.nickname == nickname);
+  myteam = player.team;
+}
 
 
 // Utility Functions
 ////////////////////////////////////////////////////////////////////////////
 
 // Wipe all of the descriptor tile classes from each tile
-function wipeBoard(){
-  for (let x = 0; x < 5; x++){
-    let row = document.getElementById('row-' + (x+1))
-    for (let y = 0; y < 5; y++){
+function wipeBoard() {
+  for (let x = 0; x < 5; x++) {
+    let row = document.getElementById('row-' + (x + 1))
+    for (let y = 0; y < 5; y++) {
       let button = row.children[y]
       button.className = 'tile'
     }
@@ -298,12 +325,12 @@ function wipeBoard(){
 }
 
 // Update the game info displayed to the client
-function updateInfo(game, team){
+function updateInfo(game, team) {
   scoreBlue.innerHTML = game.blue                         // Update the blue tiles left
   scoreRed.innerHTML = game.red                           // Update the red tiles left
   turnMessage.innerHTML = game.turn + "'s turn"           // Update the turn msg
   turnMessage.className = game.turn                       // Change color of turn msg
-  if (game.over){                                         // Display winner
+  if (game.over) {                                         // Display winner
     turnMessage.innerHTML = game.winner + " wins!"
     turnMessage.className = game.winner
   }
@@ -313,13 +340,13 @@ function updateInfo(game, team){
 }
 
 // Update the clients timer slider
-function updateTimerSlider(game, mode){
+function updateTimerSlider(game, mode) {
   let minutes = (game.timerAmount - 1) / 60
   timerSlider.value = minutes
   timerSliderLabel.innerHTML = "Timer Length : " + timerSlider.value + "min"
 
   // If the mode is not timed, dont show the slider
-  if (mode === 'casual'){
+  if (mode === 'casual') {
     timerSlider.style.display = 'none'
     timerSliderLabel.style.display = 'none'
   } else {
@@ -329,7 +356,7 @@ function updateTimerSlider(game, mode){
 }
 
 // Update the pack toggle buttons
-function updatePacks(game){
+function updatePacks(game) {
   if (game.base) buttonBasecards.className = 'enabled'
   else buttonBasecards.className = ''
   if (game.duet) buttonDuetcards.className = 'enabled'
@@ -341,20 +368,35 @@ function updatePacks(game){
   document.getElementById('word-pool').innerHTML = "Word Pool: " + game.words.length
 }
 
+function otherTeam(team) {
+  if (team == 'red') return 'blue';
+  if (team == 'blue') return 'red';
+}
+
 // Update the board
-function updateBoard(board){
+function updateBoard(board) {
   // Add description classes to each tile depending on the tiles color
-  for (let x = 0; x < 5; x++){
-    let row = document.getElementById('row-' + (x+1))
-    for (let y = 0; y < 5; y++){
+  for (let x = 0; x < 5; x++) {
+    let row = document.getElementById('row-' + (x + 1))
+    for (let y = 0; y < 5; y++) {
+      // TODO visualization for duet mode
       let button = row.children[y]
+      button.className = 'tile';
       button.innerHTML = board[x][y].word
-      if (board[x][y].type === 'red') button.className += " r"    // Red tile
-      if (board[x][y].type === 'blue') button.className += " b"   // Blue tile
-      if (board[x][y].type === 'neutral') button.className += " n"// Neutral tile
-      if (board[x][y].type === 'death') button.className += " d"  // Death tile
+      const buttonType = board[x][y].type;
+      const hiddenNeutral = board[x][y].hiddenNeutral;
+      const other = otherTeam(myteam);
+      if (buttonType.includes('red')) button.className += " r"    // Red tile
+      if (buttonType.includes('blue')) button.className += " b"   // Blue tile
+      if (buttonType.includes('neutral')) button.className += " n"// Neutral tile
+      if (buttonType.includes('death')) button.className += " d"  // Death tile
       if (board[x][y].flipped) button.className += " flipped"     // Flipped tile
-      if (playerRole === 'spymaster') button.className += " s"    // Flag all tiles if the client is a spy master
+      if (playerMode == 'normal') {
+        if (playerRole === 'spymaster') button.className += " s"    // Flag all tiles if the client is a spy master
+      }
+      else {
+        if (playerMode == 'duet' && playerRole === 'spymaster') button.className += " s_" + other    // Flag all tiles if the client is a spy master
+      }
       if (difficulty === 'hard') button.className += " h"         // Flag all tiles if game is in hard mode
     }
   }
@@ -375,25 +417,33 @@ function updateBoard(board){
     buttonModeCasual.disabled = false;
     buttonModeTimed.disabled = true;
   }
+  if (playerMode == 'normal') {
+    console.log('it is normal')
+    buttonPlayerModeNormal.disabled = true
+    buttonPlayerModeDuet.disabled = false
+  } else {
+    buttonPlayerModeNormal.disabled = false
+    buttonPlayerModeDuet.disabled = true
+  }
 }
 
 // Update the player list
-function updatePlayerlist(players){
+function updatePlayerlist(players) {
   undefinedList.innerHTML = ''
   redTeam.innerHTML = ''
   blueTeam.innerHTML = ''
-  for (let i in players){
+  for (let i in players) {
     // Create a li element for each player
     let li = document.createElement('li');
     li.innerText = players[i].nickname
     // If the player is a spymaster, put brackets around their name
     if (players[i].role === 'spymaster') li.innerText = "[" + players[i].nickname + "]"
     // Add the player to their teams ul
-    if (players[i].team === 'undecided'){
+    if (players[i].team === 'undecided') {
       undefinedList.appendChild(li)
-    } else if (players[i].team === 'red'){
+    } else if (players[i].team === 'red') {
       redTeam.appendChild(li)
-    } else if (players[i].team === 'blue'){
+    } else if (players[i].team === 'blue') {
       blueTeam.appendChild(li)
     }
   }
@@ -402,6 +452,6 @@ function updatePlayerlist(players){
 // Client Side UI Elements
 
 // Hide donate banner
-document.getElementById('donate-hide').onclick = () => { 
+document.getElementById('donate-hide').onclick = () => {
   document.getElementById('donate').className = 'hide'
 }

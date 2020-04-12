@@ -101,6 +101,69 @@
 #board .row .tile:hover{
   border-color: #323032;
 }
+/* me stuff 
+
+*/
+
+
+#board .s.r, #board .s_red.r {
+  color: #B32728;
+  background: rgb(236, 170, 170);
+  border-color: rgb(236, 170, 170);
+}
+#board .s_red.b {
+  border: 2px solid #F8FDFF;
+  background: #F8FDFF;
+  color: #323032;
+}
+#board .s_blue.r {
+  border: 2px solid #F8FDFF;
+  background: #F8FDFF;
+  color: #323032;
+}
+
+
+#board .s.b, #board .s_blue.b {
+  color: #11779F;
+  background: rgb(168, 216, 235);
+  border-color: rgb(168, 216, 235);
+}
+
+#board .r.b.d.s_red, .r.b.d.s_blue {
+  color: #323032;
+  background: #686c6d !important;
+  border-color: #686c6d !important;
+}
+
+#board .s.d, 
+#board .s_blue.d, 
+#board .s_blue.d.r, 
+#board .s_red.d, #board .s_red.d.b {
+  color: #323032;
+  background: #686c6d;
+  border-color: #686c6d;
+}
+#board .s.d, #board .s_blue.r.d, #board .s_red.b.d {
+  background: #F8FDFF;
+  border-color: #F8FDFF;
+}
+
+#board .s.d.h, #board .s_blue.d.h, #board .s_red.d.h {
+  background: #F8FDFF;
+  border-color: #F8FDFF;
+}
+
+#board .s.d.h:hover {
+  border-color: #323032;
+}
+#board .s_red.d.h:hover {
+  border-color: #323032;
+}
+#board .s_blue.d.h:hover {
+  border-color: #323032;
+}
+
+/* end me stuff */ 
 
 #board .s {
   font-weight: bold;
